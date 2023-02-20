@@ -20,7 +20,7 @@ class TestSkip(TestCase):
 class TestViewResponses(TestCase):
     def setUp(self):
         self.c = Client()
-        User.objects.create(username='user')
+        User.objects.create(username='dashboard')
         Category.objects.create(name='django', slug='django')
         Product.objects.create(category_id=1, title='django beginners', created_by_id=1,
                                slug='django-beginners', price='20.00', image='django')

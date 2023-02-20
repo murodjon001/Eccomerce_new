@@ -14,7 +14,7 @@ class Basket():
     def __init__(self, request):
         self.session = request.session
         basket = self.session.get(settings.BASKET_SESSION_ID)
-        print('bu basketda  ',basket)
+        # print('bu basketda  ',basket)
         if settings.BASKET_SESSION_ID not in request.session:
             basket = self.session[settings.BASKET_SESSION_ID] = {}
         self.basket = basket
@@ -28,7 +28,7 @@ class Basket():
         if product_id in self.basket:
             self.basket[product_id]['qty'] = qty
         else:
-            self.basket[product_id] = {'price': str(product.price), 'qty': qty}
+            self.basket[product_id] = {'price': str(product.regular_price), 'qty': qty}
 
         self.save()
 
@@ -38,7 +38,7 @@ class Basket():
         and return products
         """
         product_ids = self.basket.keys()
-        products = Product.products.filter(id__in=product_ids)
+        products = Product.objects.filter(id__in=product_ids)
         basket = self.basket.copy()
 
         for product in products:
@@ -85,7 +85,7 @@ class Basket():
 
         if product_id in self.basket:
             del self.basket[product_id]
-            print(product_id)
+            # print(product_id)
             self.save()
 
     def save(self):

@@ -1,0 +1,12 @@
+cmd commands:
+stripe login   # bu stripe servergs ulanish uchun
+stripe listen   # bu komanda webhook kalitini beradi
+stripe listen --forward-to localhost:8000/payment/webhook/     # bu komanda stripe serveridan localhostga yoki istalgan urlga
+to'lov o'tgan yoki o'tmaganligini yuboradi
+
+
+# plastik karta ma'lumotlari(test)
+
+No auth: 4242424242424242
+Auth: 4000002500003155
+Error: 4000000000009995

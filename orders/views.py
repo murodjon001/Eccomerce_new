@@ -27,7 +27,7 @@ def add(request):
                 OrderItem.objects.create(order_id=order_id, product=item['product'], price=item['price'],
                                          quantity=item['qty'])
 
-        response = JsonResponse({'success': 'Return something'})
+        response = JsonResponse({'success': 'Return something bla bla'})
         return response
 
 
@@ -40,3 +40,4 @@ def user_orders(request):
     user_id = request.user.id
     orders = Order.objects.filter(user_id=user_id).filter(billing_status=True)
     return orders
+

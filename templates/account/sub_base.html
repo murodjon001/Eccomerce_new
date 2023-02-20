@@ -1,0 +1,18 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block stylesheet %}
+  <link rel="stylesheet" href="{% static 'account/css/account.css' %}">
+  <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'store/css/store.css' %}">
+  <link rel="stylesheet" href="{% static 'basket/css/basket.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="login d-flex align-items-center">
+    <div class="col-12 col-md-6  col-lg-6 mx-auto">
+      {% block sub_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+{% endblock %}

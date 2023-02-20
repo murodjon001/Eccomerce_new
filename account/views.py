@@ -20,7 +20,8 @@ from .token import account_activation_token
 def dashboard(request):
     orders = user_orders(request)
     return render(request,
-                  'account/user/dashboard.html', {'orders':orders})
+                  'account/dashboard/dashboard.html', {'orders':orders})
+
 
 
 @login_required  # bu decoratorni vazifasi , agar foydalanuvchi login qilib kirgan bo'lsagina  decorator ostidagi funksyalarni ishga tuahirishini ta'minlaydi
@@ -33,10 +34,10 @@ def edit_details(request):
             user_form.save()
     else:
         user_form = UserEditForm(instance=request.user)
-        print(user_form,'else')
+        # print(user_form,'else')
 
     return render(request,
-                  'account/user/edit_details.html', {'user_form': user_form})
+                  'account/dashboard/edit_details.html', {'user_form': user_form})
 
 @login_required
 def delete_user(request):
@@ -48,7 +49,7 @@ def delete_user(request):
 
 
 def account_register(request):
-    # if request.user.is_authenticated:
+    # if request.dashboard.is_authenticated:
     #     return redirect('/')
 
     if request.method == 'POST':
@@ -64,25 +65,25 @@ def account_register(request):
             current_site = get_current_site(request)
             subject = 'Activate your Account'
             message = render_to_string('account/registration/account_activation_email.html', {
-                'user': user,
+                'dashboard': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
             user.email_user(subject=subject, message=message)
-            return HttpResponse('registered succesfully and activation sent')
+            return render(request, 'account/registration/register_email_confirm.html', {'form': registerForm})
 
     else:
         registerForm = RegistrationForm()
     return render(request, 'account/registration/register.html', {'form': registerForm})
 
 
-def account_activate(request, uidb64, token):  # user sign up qilgandan keyin , accountni activlashtiradigan funksya
+def account_activate(request, uidb64, token):  # dashboard sign up qilgandan keyin , accountni activlashtiradigan funksya
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = UserBase.objects.get(pk=uid)
-    # except(TypeError, ValueError, OverflowError, user.DoesNotExist):
-    #     user = None
+    # except(TypeError, ValueError, OverflowError, dashboard.DoesNotExist):
+    #     dashboard = None
     except():
         pass
     if user is not None and account_activation_token.check_token(user, token):
