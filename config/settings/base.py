@@ -56,11 +56,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'sqlite1.db',  # Or path to database file if using sqlite3.
-
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Eccomerce',
+        'USER': 'postgres',
+        'PASSWORD': '06102000murodjon',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -98,7 +102,7 @@ BASKET_SESSION_ID = 'basket'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom dashboard model
-AUTH_USER_MODEL = 'account.UserBase'
+AUTH_USER_MODEL = 'account.Customer'
 LOGIN_REDIRECT_URL = '/account/dashboard'
 LOGIN_URL = '/account/login/'
 

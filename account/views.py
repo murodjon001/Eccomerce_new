@@ -1,16 +1,16 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
+from django.urls import reverse
 from orders.views import user_orders
 
-from .forms import RegistrationForm, UserEditForm
-from .models import UserBase
+from .forms import RegistrationForm, UserEditForm, UserAddressForm
+from .models import Customer, Address
 from .token import account_activation_token
 
 
@@ -20,8 +20,7 @@ from .token import account_activation_token
 def dashboard(request):
     orders = user_orders(request)
     return render(request,
-                  'account/dashboard/dashboard.html', {'orders':orders})
-
+                  'account/dashboard/dashboard.html', {'orders': orders})
 
 
 @login_required  # bu decoratorni vazifasi , agar foydalanuvchi login qilib kirgan bo'lsagina  decorator ostidagi funksyalarni ishga tuahirishini ta'minlaydi
@@ -30,7 +29,6 @@ def edit_details(request):
         user_form = UserEditForm(instance=request.user, data=request.POST)
 
         if user_form.is_valid():
-
             user_form.save()
     else:
         user_form = UserEditForm(instance=request.user)
@@ -39,9 +37,10 @@ def edit_details(request):
     return render(request,
                   'account/dashboard/edit_details.html', {'user_form': user_form})
 
+
 @login_required
 def delete_user(request):
-    user = UserBase.objects.get(user_name=request.user)
+    user = Customer.objects.get(user_name=request.user)
     user.is_active = False
     user.save()
     logout(request)
@@ -78,10 +77,11 @@ def account_register(request):
     return render(request, 'account/registration/register.html', {'form': registerForm})
 
 
-def account_activate(request, uidb64, token):  # dashboard sign up qilgandan keyin , accountni activlashtiradigan funksya
+def account_activate(request, uidb64,
+                     token):  # dashboard sign up qilgandan keyin , accountni activlashtiradigan funksya
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
-        user = UserBase.objects.get(pk=uid)
+        user = Customer.objects.get(pk=uid)
     # except(TypeError, ValueError, OverflowError, dashboard.DoesNotExist):
     #     dashboard = None
     except():
@@ -93,3 +93,52 @@ def account_activate(request, uidb64, token):  # dashboard sign up qilgandan key
         return redirect('account:dashboard')
     else:
         return render(request, 'account/registration/activation_invalid.html')
+
+
+# Adresses
+@login_required()
+@login_required
+def view_address(request):
+    addresses = Address.objects.filter(customer=request.user)
+    return render(request, "account/dashboard/addresses.html", {"addresses": addresses})
+
+
+@login_required
+def add_address(request):
+    if request.method == "POST":
+        address_form = UserAddressForm(data=request.POST)
+        if address_form.is_valid():
+            address_form = address_form.save(commit=False)
+            address_form.customer = request.user
+            address_form.save()
+            return HttpResponseRedirect(reverse("account:addresses"))
+    else:
+        address_form = UserAddressForm()
+    return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
+
+
+@login_required
+def edit_address(request, id):
+    if request.method == "POST":
+        address = Address.objects.get(pk=id, customer=request.user)
+        address_form = UserAddressForm(instance=address, data=request.POST)
+        if address_form.is_valid():
+            address_form.save()
+            return HttpResponseRedirect(reverse("account:addresses"))
+    else:
+        address = Address.objects.get(pk=id, customer=request.user)
+        address_form = UserAddressForm(instance=address)
+    return render(request, "account/dashboard/edit_addresses.html", {"form": address_form})
+
+
+@login_required
+def delete_address(request, id):
+    address = Address.objects.filter(pk=id, customer=request.user).delete()
+    return redirect("account:addresses")
+
+
+@login_required
+def set_default(request, id):
+    Address.objects.filter(customer=request.user, default=True).update(default=False)
+    Address.objects.filter(pk=id, customer=request.user).update(default=True)
+    return redirect("account:addresses")
